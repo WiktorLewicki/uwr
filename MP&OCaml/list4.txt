@@ -1,0 +1,242 @@
+zad 1
+
+module type DICT = sig
+  type ('a , 'b ) dict
+  val empty : ('a , 'b ) dict
+  val insert : 'a -> 'b -> ('a , 'b ) dict -> ('a , 'b ) dict
+  val remove : 'a -> ('a , 'b ) dict -> ('a , 'b ) dict
+  val find_opt : 'a -> ('a , 'b ) dict -> 'b option
+  val find : 'a -> ('a , 'b ) dict -> 'b
+  val to_list : ('a , 'b ) dict -> ('a * 'b ) list
+end
+
+
+module ListDict : DICT = struct
+  type ('a, 'b) dict = ('a * 'b) list
+  let empty = []
+  
+  let remove key d = 
+    let rec it k d' acc =
+      match d' with
+      | [] -> acc
+      | h :: t -> if (fst h) = k then t @ acc else it k t (h :: acc)
+    in it key d []
+  
+  let find_opt key d = 
+    let rec it k d' =
+      match d' with
+      | [] -> None
+      | h :: t -> if (fst h) = k then Some (snd h) else it k t 
+    in it key d 
+
+  let insert key value d =
+    match find_opt key d with
+    | Some _ -> (key, value) :: (remove key d)
+    | None -> (key, value) :: d
+  
+  let find key d = 
+    let rec it k d' =
+      match d' with
+      | [] -> failwith "Not Found"
+      | h :: t -> if (fst h) = k then (snd h) else it k t 
+    in it key d 
+
+  let to_list d = d
+end
+
+zad 2
+
+module type KDICT = sig
+  type key
+  type 'a dict
+
+  val empty : 'a dict
+  val insert : key -> 'a -> 'a dict -> 'a dict
+  val remove : key -> 'a dict -> 'a dict
+  val find_opt : key -> 'a dict -> 'a option
+  val find : key -> 'a dict -> 'a
+  val to_list : 'a dict -> (key * 'a) list
+end
+
+
+zad 3
+
+module type KDICT = sig
+  type key
+  type 'a dict
+
+  val empty : 'a dict
+  val insert : key -> 'a -> 'a dict -> 'a dict
+  val remove : key -> 'a dict -> 'a dict
+  val find_opt : key -> 'a dict -> 'a option
+  val find : key -> 'a dict -> 'a
+  val to_list : 'a dict -> (key * 'a) list
+end
+
+
+module MakeListDict (Ord : Map.OrderedType) : KDICT with type key = Ord.t = struct
+  type key = Ord.t
+  type 'a dict = (key * 'a) list
+
+  let empty = []
+
+  let rec remove key d =
+    match d with
+    | [] -> []
+    | (k, v) :: t ->
+        if Ord.compare k key = 0 then t
+        else (k, v) :: remove key t
+
+  let rec find_opt key d =
+    match d with
+    | [] -> None
+    | (k, v) :: t ->
+        if Ord.compare k key = 0 then Some v
+        else find_opt key t
+
+  let insert key value d =
+    match find_opt key d with
+    | Some _ -> (key, value) :: (remove key d)
+    | None -> (key, value) :: d
+
+  let rec find key d =
+    match d with
+    | [] -> failwith "Not found"
+    | (k, v) :: t ->
+        if Ord.compare k key = 0 then v
+        else find key t
+
+  let to_list d = d
+end
+
+
+module CharOrdered = struct
+  type t = char 
+  let compare = Char.compare
+end
+
+module CharListDict = MakeListDict(CharOrdered) ;;
+
+
+let test = CharListDict.empty;;
+let test = CharListDict.insert 'c' 5 test;;
+let test1 = CharListDict.find 'c' test;;
+let test2 = CharListDict.find_opt 'a' test;;
+
+
+zad 4
+
+module type KDICT = sig
+  type key
+  type 'a dict
+
+  val empty : 'a dict
+  val insert : key -> 'a -> 'a dict -> 'a dict
+  val remove : key -> 'a dict -> 'a dict
+  val find_opt : key -> 'a dict -> 'a option
+  val find : key -> 'a dict -> 'a
+  val to_list : 'a dict -> (key * 'a) list
+end
+
+module MakeMapDict (Ord : Map.OrderedType) : (KDICT with type key = Ord.t) = struct
+  type key = Ord.t
+  module M = Map.Make(Ord)
+  type 'a dict = 'a M.t
+
+  let empty = M.empty
+  let insert key value d = M.add key value d
+  let remove key d = M.remove key d
+  let find_opt key d =
+    try Some (M.find key d)
+    with Not_found -> None
+  let find key d = M.find key d
+  let to_list d = M.bindings d
+end
+
+module CharOrdered = struct
+  type t = char
+  let compare a b =
+    if a < b then -1
+    else if a > b then 1
+    else 0
+end
+
+module CharMapDict = MakeMapDict(CharOrdered)
+
+let dict = CharMapDict.empty;;
+let dict = CharMapDict.insert 'a' 1 dict;;
+let dict = CharMapDict.insert 'b' 2 dict;;
+let value = CharMapDict.find 'a' dict;;
+let list_of_bindings = CharMapDict.to_list dict;;
+
+
+
+
+zad 5
+
+module type KDICT = sig
+  type key
+  type 'a dict
+
+  val empty : 'a dict
+  val insert : key -> 'a -> 'a dict -> 'a dict
+  val remove : key -> 'a dict -> 'a dict
+  val find_opt : key -> 'a dict -> 'a option
+  val find : key -> 'a dict -> 'a
+  val to_list : 'a dict -> (key * 'a) list
+end
+
+module MakeMapDict (Ord : Map.OrderedType) : (KDICT with type key = Ord.t) = struct
+  type key = Ord.t
+  module M = Map.Make(Ord)
+  type 'a dict = 'a M.t
+
+  let empty = M.empty
+  let insert key value d = M.add key value d
+  let remove key d = M.remove key d
+  let find_opt key d =
+    try Some (M.find key d)
+    with Not_found -> None
+  let find key d = M.find key d
+  let to_list d = M.bindings d
+end
+
+module CharOrdered = struct
+  type t = char
+  let compare a b =
+    if a < b then -1
+    else if a > b then 1
+    else 0
+end
+
+module StringOrdered = struct
+  type t = string
+  let compare = compare
+end
+
+module Freq (D : KDICT) = struct 
+  let freq (xs : D.key list) : (D.key * int) list =
+    let rec it xs' d =
+      match xs' with
+      | [] -> D.to_list d
+      | h :: t -> it t (D.insert h (if D.find_opt h d = None then 1 else (D.find h d) + 1) d)
+    in it xs D.empty
+end
+
+module StringDict = MakeMapDict(StringOrdered)
+module StringFreq = Freq(StringDict)
+
+let input = ["ab"; "ba"; "ac"; "ab"; "ba"; "ab"] 
+
+let frequencies = StringFreq.freq input 
+
+module CharDict = MakeMapDict(CharOrdered)
+module CharFreq = Freq(CharDict)
+
+let list_of_string s =
+  String.to_seq s |> List.of_seq
+
+let char_freq (text : string) : (char * int) list =
+  CharFreq.freq (list_of_string text);;
+
+char_freq("test");;

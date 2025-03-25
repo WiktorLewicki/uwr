@@ -1,0 +1,77 @@
+zad 1 
+1. 0x100
+2. 0x13
+3. 0x108
+4. 0XFF
+5. 0XAB
+6. 0x11
+7. 0XFF
+8. 0X11
+9. 0X13
+
+
+zad2
+
+1. 0x100 0x100
+2. -16 %rdx (0xFFFFFFFFFFFFFFF0)
+3. 0x10 %rax (przesunięcie bitowe w prawo)
+4. 1 0x20
+5. 0 %rcx
+6. 0 %rax
+7. 0x9 %rdx
+8. 0x18 %rdx
+
+
+zad 3
+
+long decode (long x, long y){
+	long a = x+y;
+	x = a^x;
+	y = a^y;
+	a = x;
+	a = y & a;
+	return ((unsigned long) a) >> 63;
+}
+
+zad 4
+
+swap_endian:
+    mov    %edi, %eax
+    ror    $8, %eax
+    mov    %eax, %r8d
+    mov    %eax, %r9d
+    mov    %eax, %r10d
+    and    $0xFF00FF00, %eax
+    and    $0x00FF0000, %r8d
+    ror    $16, %r8d
+    and    $0x000000FF, %r9d
+    shl    $16, %r9d
+    or     %r8d, %eax
+    or     %r9d, %eax
+    ret
+
+uint32_t swap_endian(uint32_t value) {
+    uint32_t result = value;
+    result = (result >> 8) | (result << 24);
+    result = (result & 0xFF00FF00) | ((result & 0x00FF0000) >> 16) | ((result & 0x000000FF) << 16);
+    return result;
+} 
+
+
+zad 6
+
+swap_lowercase:
+    movq    %rax, %r8
+    subq    $0x6161616161616161, %r8
+
+    movq    $0x7A7A7A7A7A7A7A7A, %r9
+    subq    %rax, %r9
+
+    orq     %r9, %r8
+    notq    %r8
+    shrq    $2, %r8
+    andq    $0x2020202020202020, %r8
+
+    subq    %r8, %rax
+    ret
+

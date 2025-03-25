@@ -1,0 +1,88 @@
+zad 1
+
+let rec fib x =
+	match x with
+	| 0 -> 0
+	| 1 -> 1
+	| _ -> fib (x-1) + fib (x-2);;
+	
+	
+print_int (fib 7);;
+
+let fib_iter n =
+  let rec iter i a b =
+    if i = n then a
+    else iter (i + 1) b (a + b)
+  in
+  iter 0 0 1;;
+
+print_int (fib_iter 7);;
+
+
+
+
+zad 2 i 3
+
+let matrix_mult (a, b, c, d) (e, f, g, h) =
+  (a * e + b * g, a * f + b * h,
+   c * e + d * g, c * f + d * h);;
+   
+let matrix_id = (1, 0, 0, 1);;
+
+let rec matrix_expt m k =
+  if k = 0 then matrix_id
+  else if k mod 2 = 0 then 
+    let half = matrix_expt m (k / 2) in
+    matrix_mult half half
+  else 
+    matrix_mult m (matrix_expt m (k - 1));;
+
+
+let fib k =
+  let (_, b, _, _) = matrix_expt (1, 1, 1, 0) k in
+  b;;
+  
+print_int (fib 7);;
+
+zad 4
+
+let rec mem x xs =
+  match xs with
+  | [] -> false
+  | h :: t -> if h = x then true else mem x t;;
+
+let b = mem 5 [2; 3] in
+if b = true then print_string "true" else print_string "false";;
+
+zad 5
+
+let mx a b = if a > b then a else b;;
+
+let rec maximum xs =
+	match xs with
+	| [] -> neg_infinity
+	| [x] -> x
+	| h :: t -> mx h (maximum t);;
+	
+print_float (maximum [2.; 1.; 3.; 7.]);;
+
+zad 6
+
+let rec suffixes xs =
+  match xs with
+  | [] -> [[]]
+  | _ :: t -> xs :: suffixes t;; 
+ 
+ 
+zad 7
+
+
+let rec is_sorted xs =
+  match xs with
+  | [] -> true
+  | [_] -> true
+  | x :: (y :: t) -> x <= y && is_sorted (y::t);;
+  
+ 
+ let b = is_sorted [2;1;3;7];;
+ if b=true then print_string "true" else print_string "false";;

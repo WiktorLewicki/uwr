@@ -1,0 +1,81 @@
+1.
+1) addq    %rcx, %rsi        # dodaj młodsze części
+2) adcq    %rdx, %rdi        # dodaj starsze z przeniesieniem
+3) movq    %rsi, %rax        # ustaw młodsze bity wyniku
+4) movq    %rdi, %rdx        # ustaw starsze bity wyniku
+
+1) Zmienia CF, OF, SF, ZF, AF, PF
+2) działa jak add, ale dodaje CF z poprzedniego działania, zmienia CF, OF, SF, ZF, AF, PF.
+3, 4) nie modyfikuje flag
+
+2.
+addu:
+    movq    %rdi, %rax
+    addq    %rsi, %rax
+    jcq     saturate
+    ret
+saturate:
+    movq    $-1, %rax
+    ret
+
+jc saturate
+
+
+
+addu:
+    movq    %rdi, %rax
+    addq    %rsi, %rax
+    movq    $0, %rcx
+    sbbq    %rcx, %rcx
+    orq     %rcx, %rax
+    ret
+
+
+
+
+#sbb 0 - 0 - CF
+
+
+zad 3
+
+x to %rdi, y to %rsi
+cmp:
+	cmpq %rsi, %rdi
+	movq $0, %rax
+	sbbq %rax, %rax
+	cmpq %rdi, %rsi
+	adcq $0, %rax
+	ret
+
+zad 4
+int puzzle(long x, unsigned n) {
+    if (n == 0)
+        return 0;
+    int sum = 0;
+    for (unsigned i = 0; i < n; i++) {
+        sum += (int)(x & 1);
+        x >>= 1;
+    }
+    return sum;
+}
+
+zad 5
+
+long puzzle2(char *s, char *d) {
+    char *p = s;
+    while (1) {
+        char c = *p;
+        char *next = p + 1;
+        char *q = d;
+        while (*q != '\0') {
+            if (*q == c)
+                break;
+            q++;
+        }
+        if (*q == '\0')
+            return p - s;
+        p = next;
+    }
+}
+
+strspn
